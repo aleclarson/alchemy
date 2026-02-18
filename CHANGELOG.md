@@ -1,3 +1,17 @@
+## v0.85.1
+
+### &nbsp;&nbsp;&nbsp;🚀 Features
+
+- **cloudflare**: AI Search &nbsp;-&nbsp; by **Gabriel Massadas**, **Sam Goodwin** and **John Royal** in https://github.com/alchemy-run/alchemy/issues/1317 [<samp>(bda7f)</samp>](https://github.com/alchemy-run/alchemy/commit/bda7f53c)
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Erroneous replacement of r2 custom domain &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/alchemy/issues/1337 [<samp>(a542a)</samp>](https://github.com/alchemy-run/alchemy/commit/a542a341)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/alchemy/compare/v0.85.0...v0.85.1)
+
+---
+
 ## v0.85.0
 
 ### &nbsp;&nbsp;&nbsp;🚀 Features
