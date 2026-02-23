@@ -1,3 +1,14 @@
+## v0.85.2
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Skip config file validation during svelte check & sync &nbsp;-&nbsp; by **yeoularu** and **John Royal** in https://github.com/alchemy-run/alchemy/issues/1336 [<samp>(0ba2c)</samp>](https://github.com/alchemy-run/alchemy/commit/0ba2c7c2)
+- **docker**: Improve container start and update handling &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/alchemy/issues/1339 [<samp>(3e123)</samp>](https://github.com/alchemy-run/alchemy/commit/3e12381f)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/alchemy/compare/v0.85.1...v0.85.2)
+
+---
+
 ## v0.85.1
 
 ### &nbsp;&nbsp;&nbsp;🚀 Features
