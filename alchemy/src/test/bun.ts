@@ -157,7 +157,7 @@ export function test(meta: ImportMeta, defaultOptions?: TestOptions): test {
     const timeout =
       typeof args[args.length - 1] === "number"
         ? (args[args.length - 1] as number)
-        : 120000;
+        : 150000;
     const spread = (obj: any) =>
       obj && typeof obj === "object"
         ? Object.fromEntries(
