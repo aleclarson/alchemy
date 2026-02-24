@@ -1,3 +1,13 @@
+## v0.86.0
+
+### &nbsp;&nbsp;&nbsp;🚀 Features
+
+- **cloudflare**: VpcServiceRef &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/alchemy/issues/1341 [<samp>(30d95)</samp>](https://github.com/alchemy-run/alchemy/commit/30d9523f)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/alchemy/compare/v0.85.2...v0.86.0)
+
+---
+
 ## v0.85.2
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
