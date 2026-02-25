@@ -477,7 +477,6 @@ function toRuntimeInfo(info: ContainerInfo): ContainerRuntimeInfo {
   }
 
   return {
-    id: info.Id,
     ports,
   };
 }

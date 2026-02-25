@@ -84,7 +84,6 @@ describe("Container inspect", () => {
 
       const info = await container.inspect();
       expect(info).toBeDefined();
-      expect(info.id).toBe("mock-id");
       expect(info.ports).toEqual({});
     } finally {
       await alchemy.destroy(scope);
@@ -105,7 +104,6 @@ describe("Container inspect", () => {
 
       const info = await container.inspect();
       expect(info).toBeDefined();
-      expect(info.id).toBe("mock-id");
 
       // Check ports map
       expect(info.ports).toBeDefined();

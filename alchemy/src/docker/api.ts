@@ -115,11 +115,6 @@ export type ContainerInfo = {
 
 export type ContainerRuntimeInfo = {
   /**
-   * Container ID
-   */
-  id: string;
-
-  /**
    * Map of internal container ports to their bound host ports.
    * Format: "internalPort/protocol" -> hostPort (number)
    */
