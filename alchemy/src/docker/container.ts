@@ -207,6 +207,11 @@ export interface Container extends ContainerProps {
    * Time when the container was created
    */
   createdAt: number;
+
+  /**
+   * Inspect the container to get detailed information
+   */
+  inspect(): Promise<ContainerInfo>;
 }
 
 /**
@@ -370,6 +375,13 @@ export const Container = Resource(
           name: containerName,
           state: containerState,
           createdAt: new Date(containerInfo.Created).getTime(),
+          inspect: async () => {
+            const [info] = await api.inspectContainer(containerName);
+            if (!info) {
+              throw new Error(`Container ${containerName} not found`);
+            }
+            return info;
+          },
         };
       }
     }
@@ -424,6 +436,13 @@ export const Container = Resource(
       name: containerName,
       state: containerState,
       createdAt: Date.now(),
+      inspect: async () => {
+        const [info] = await api.inspectContainer(containerName);
+        if (!info) {
+          throw new Error(`Container ${containerName} not found`);
+        }
+        return info;
+      },
     };
   },
 );
