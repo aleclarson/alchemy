@@ -14,7 +14,8 @@ describe("Container inspect", () => {
 
   beforeAll(async () => {
     vi.doMock("../../src/docker/api.ts", async (importOriginal) => {
-      const mod = await importOriginal<typeof import("../../src/docker/api.ts")>();
+      const mod =
+        await importOriginal<typeof import("../../src/docker/api.ts")>();
       return {
         ...mod,
         DockerApi: vi.fn().mockImplementation(() => ({
@@ -29,7 +30,9 @@ describe("Container inspect", () => {
             // Return mock container info
             const info: ContainerInfo = {
               Id: "mock-id",
-              State: { Status: name.includes("running") ? "running" : "created" },
+              State: {
+                Status: name.includes("running") ? "running" : "created",
+              },
               Created: new Date().toISOString(),
               Config: {
                 Image: "hello-world:latest",
@@ -45,7 +48,7 @@ describe("Container inspect", () => {
               },
               NetworkSettings: {
                 Networks: {},
-                Ports: {}
+                Ports: {},
               },
             };
 
@@ -97,7 +100,10 @@ describe("Container inspect", () => {
         image: "nginx:latest",
         name: containerName,
         start: true,
-        ports: [{ internal: 80, external: 0 }, { internal: 443, external: 0 }]
+        ports: [
+          { internal: 80, external: 0 },
+          { internal: 443, external: 0 },
+        ],
       });
 
       expect(container.state).toBe("running");
