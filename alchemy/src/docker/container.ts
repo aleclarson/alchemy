@@ -1,5 +1,6 @@
 import type { Context } from "../context.ts";
 import { Resource } from "../resource.ts";
+import { Secret } from "../secret.ts";
 import {
   DockerApi,
   normalizeDuration,
@@ -145,7 +146,7 @@ export interface ContainerProps {
   /**
    * Environment variables
    */
-  environment?: Record<string, string>;
+  environment?: Record<string, string | Secret>;
 
   /**
    * Port mappings
@@ -413,7 +414,7 @@ export const Container = Resource(
     // Create new container
     const containerId = await api.createContainer(imageRef, containerName, {
       ports: portMappings,
-      env: props.environment,
+      env: normalizeEnvironment(props.environment),
       volumes: volumeMappings,
       cmd: props.command,
       healthcheck: props.healthcheck,
@@ -530,7 +531,12 @@ function shouldReplace(
   }
 
   // Environment variables
-  if (!compareEnv(props.environment, containerInfo.Config.Env)) {
+  if (
+    !compareEnv(
+      normalizeEnvironment(props.environment),
+      containerInfo.Config.Env,
+    )
+  ) {
     return true;
   }
 
@@ -564,6 +570,21 @@ function shouldReplace(
   }
 
   return false;
+}
+
+/**
+ * Unwrap secrets in given environment variables
+ * @internal
+ */
+function normalizeEnvironment(
+  environment: Record<string, string | Secret> | undefined,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(environment ?? {}).map(([key, value]) => [
+      key,
+      Secret.unwrap(value),
+    ]),
+  );
 }
 
 /**
