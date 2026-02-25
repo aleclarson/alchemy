@@ -1,3 +1,18 @@
+## v0.87.0
+
+### &nbsp;&nbsp;&nbsp;🚀 Features
+
+- **docker**: Add `inspect` method to `Container` interface &nbsp;-&nbsp; by **Alec Larson** and **John Royal** in https://github.com/alchemy-run/alchemy/issues/1345 [<samp>(8c710)</samp>](https://github.com/alchemy-run/alchemy/commit/8c7102bf)
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Handle multiple same-name dns records in update &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/alchemy/issues/1342 [<samp>(c9979)</samp>](https://github.com/alchemy-run/alchemy/commit/c9979d96)
+- **docker**: Allow secrets in container env &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/alchemy/issues/1346 [<samp>(795d0)</samp>](https://github.com/alchemy-run/alchemy/commit/795d0039)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/alchemy/compare/v0.86.0...v0.87.0)
+
+---
+
 ## v0.86.0
 
 ### &nbsp;&nbsp;&nbsp;🚀 Features
