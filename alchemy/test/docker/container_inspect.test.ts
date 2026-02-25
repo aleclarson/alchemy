@@ -45,8 +45,18 @@ describe("Container inspect", () => {
               },
               NetworkSettings: {
                 Networks: {},
+                Ports: {}
               },
             };
+
+            // Add port mappings for running containers or specific test cases
+            if (name.includes("ports")) {
+              info.NetworkSettings.Ports = {
+                "80/tcp": [{ HostIp: "0.0.0.0", HostPort: "32768" }],
+                "443/tcp": [{ HostIp: "0.0.0.0", HostPort: "32769" }],
+              };
+            }
+
             // Fix up name if needed, usually it has slash
             (info as any).Name = name.startsWith("/") ? name : `/${name}`;
 
@@ -61,7 +71,7 @@ describe("Container inspect", () => {
     Container = containerModule.Container;
   });
 
-  test("should inspect a created container", async (scope) => {
+  test("should inspect a created container and return runtime info", async (scope) => {
     try {
       const containerName = `${BRANCH_PREFIX}-inspect-test`;
       const container = await Container("inspect-test", {
@@ -74,30 +84,33 @@ describe("Container inspect", () => {
 
       const info = await container.inspect();
       expect(info).toBeDefined();
-      expect(info.Id).toBe("mock-id");
-      expect(info.Name).toBe(`/${containerName}`);
-      expect(info.State.Status).toBe("created");
+      expect(info.id).toBe("mock-id");
+      expect(info.ports).toEqual({});
     } finally {
       await alchemy.destroy(scope);
     }
   });
 
-  test("should inspect a running container", async (scope) => {
+  test("should inspect a running container with ports and return distilled info", async (scope) => {
     try {
-      const containerName = `${BRANCH_PREFIX}-inspect-running-test`;
-      const container = await Container("inspect-running-test", {
+      const containerName = `${BRANCH_PREFIX}-inspect-ports-running-test`;
+      const container = await Container("inspect-ports-running-test", {
         image: "nginx:latest",
         name: containerName,
         start: true,
+        ports: [{ internal: 80, external: 0 }, { internal: 443, external: 0 }]
       });
 
       expect(container.state).toBe("running");
 
       const info = await container.inspect();
       expect(info).toBeDefined();
-      expect(info.Id).toBe("mock-id");
-      expect(info.Name).toBe(`/${containerName}`);
-      expect(info.State.Status).toBe("running");
+      expect(info.id).toBe("mock-id");
+
+      // Check ports map
+      expect(info.ports).toBeDefined();
+      expect(info.ports["80/tcp"]).toBe(32768);
+      expect(info.ports["443/tcp"]).toBe(32769);
     } finally {
       await alchemy.destroy(scope);
     }

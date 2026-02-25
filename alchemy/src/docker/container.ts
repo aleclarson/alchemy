@@ -1,6 +1,11 @@
 import type { Context } from "../context.ts";
 import { Resource } from "../resource.ts";
-import { DockerApi, normalizeDuration, type ContainerInfo } from "./api.ts";
+import {
+  DockerApi,
+  normalizeDuration,
+  type ContainerInfo,
+  type ContainerRuntimeInfo,
+} from "./api.ts";
 import type { Image } from "./image.ts";
 import type { RemoteImage } from "./remote-image.ts";
 
@@ -211,7 +216,7 @@ export interface Container extends ContainerProps {
   /**
    * Inspect the container to get detailed information
    */
-  inspect(): Promise<ContainerInfo>;
+  inspect(): Promise<ContainerRuntimeInfo>;
 }
 
 /**
@@ -380,7 +385,7 @@ export const Container = Resource(
             if (!info) {
               throw new Error(`Container ${containerName} not found`);
             }
-            return info;
+            return toRuntimeInfo(info);
           },
         };
       }
@@ -441,11 +446,41 @@ export const Container = Resource(
         if (!info) {
           throw new Error(`Container ${containerName} not found`);
         }
-        return info;
+        return toRuntimeInfo(info);
       },
     };
   },
 );
+
+function toRuntimeInfo(info: ContainerInfo): ContainerRuntimeInfo {
+  const ports: Record<string, number> = {};
+  const networkSettings = info.NetworkSettings;
+
+  if (networkSettings?.Ports) {
+    for (const [internal, bindings] of Object.entries(networkSettings.Ports)) {
+      if (bindings && bindings.length > 0) {
+        ports[internal] = parseInt(bindings[0].HostPort, 10);
+      }
+    }
+  }
+
+  // Also check HostConfig.PortBindings as a fallback or additional source
+  // though NetworkSettings.Ports is usually the source of truth for running containers
+  if (info.HostConfig.PortBindings) {
+    for (const [internal, bindings] of Object.entries(
+      info.HostConfig.PortBindings,
+    )) {
+      if (bindings && bindings.length > 0 && !(internal in ports)) {
+        ports[internal] = parseInt(bindings[0].HostPort, 10);
+      }
+    }
+  }
+
+  return {
+    id: info.Id,
+    ports,
+  };
+}
 
 function getNetworkChanges(
   props: ContainerProps,
