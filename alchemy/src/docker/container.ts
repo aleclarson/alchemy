@@ -1,5 +1,6 @@
 import type { Context } from "../context.ts";
 import { Resource } from "../resource.ts";
+import { Secret } from "../secret.ts";
 import { DockerApi, normalizeDuration, type ContainerInfo } from "./api.ts";
 import type { Image } from "./image.ts";
 import type { RemoteImage } from "./remote-image.ts";
@@ -140,7 +141,7 @@ export interface ContainerProps {
   /**
    * Environment variables
    */
-  environment?: Record<string, string>;
+  environment?: Record<string, string | Secret<string>>;
 
   /**
    * Port mappings
@@ -393,10 +394,18 @@ export const Container = Resource(
       }
     }
 
+    // Process environment variables
+    const env: Record<string, string> = {};
+    if (props.environment) {
+      for (const [key, value] of Object.entries(props.environment)) {
+        env[key] = Secret.unwrap(value);
+      }
+    }
+
     // Create new container
     const containerId = await api.createContainer(imageRef, containerName, {
       ports: portMappings,
-      env: props.environment,
+      env,
       volumes: volumeMappings,
       cmd: props.command,
       healthcheck: props.healthcheck,
@@ -550,7 +559,7 @@ function normalizeVolumeMappings(
  * @internal
  */
 function compareEnv(
-  propsEnv: Record<string, string> | undefined,
+  propsEnv: Record<string, string | Secret<string>> | undefined,
   containerEnv: string[] | null,
 ): boolean {
   const propsEntries = Object.entries(propsEnv || {}).sort(([a], [b]) =>
@@ -570,7 +579,7 @@ function compareEnv(
   for (let i = 0; i < propsEntries.length; i++) {
     if (
       propsEntries[i][0] !== containerEntries[i][0] ||
-      propsEntries[i][1] !== containerEntries[i][1]
+      Secret.unwrap(propsEntries[i][1]) !== containerEntries[i][1]
     ) {
       return false;
     }
