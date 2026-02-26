@@ -107,6 +107,10 @@
       "bun": "./src/dns/index.ts",
       "import": "./lib/dns/index.js"
     },
+    "./doppler": {
+      "bun": "./src/doppler/index.ts",
+      "import": "./lib/doppler/index.js"
+    },
     "./docker": {
       "bun": "./src/docker/index.ts",
       "import": "./lib/docker/index.js"
