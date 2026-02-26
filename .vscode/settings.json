@@ -1,8 +1,6 @@
 {
-  "oxc.fmt.experimental": true,
   "editor.codeLens": false,
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "file",
   "editor.codeActionsOnSave": {
     "source.fixAll.ruff": "always",
     "source.fixAll": "explicit",
