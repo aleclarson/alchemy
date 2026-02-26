@@ -1,6 +1,6 @@
+import { exists } from "alchemy/private/util/exists";
 import { readJson, writeJson } from "fs-extra";
 import { join } from "pathe";
-import { exists } from "../../src/util/exists.ts";
 
 export async function ensureVibeRulesPostinstall(
   cwd: string,

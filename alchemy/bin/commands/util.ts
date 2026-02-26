@@ -7,12 +7,12 @@ import {
   password,
   text,
 } from "@clack/prompts";
+import { Profile, Provider } from "alchemy/private/auth";
+import { extractCloudflareResult } from "alchemy/private/cloudflare/api-response";
+import type { CloudflareAuth } from "alchemy/private/cloudflare/auth";
+import { PERMISSION_GROUPS } from "alchemy/private/cloudflare/permission-groups";
 import pc from "picocolors";
 import z from "zod";
-import { Profile, Provider } from "../../src/auth.ts";
-import { extractCloudflareResult } from "../../src/cloudflare/api-response.ts";
-import type { CloudflareAuth } from "../../src/cloudflare/auth.ts";
-import { PERMISSION_GROUPS } from "../../src/cloudflare/permission-groups.ts";
 import { CancelSignal, loggedProcedure, t } from "../trpc.ts";
 import { promptForProfileName } from "./configure.ts";
 

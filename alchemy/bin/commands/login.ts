@@ -1,9 +1,9 @@
 import { confirm, intro, log, outro } from "@clack/prompts";
+import { Credentials, Provider } from "alchemy/private/auth";
+import { CloudflareAuth } from "alchemy/private/cloudflare/auth";
 import open from "open";
 import pc from "picocolors";
 import z from "zod";
-import { Credentials, Provider } from "../../src/auth.ts";
-import { CloudflareAuth } from "../../src/cloudflare/auth.ts";
 import { authProcedure, CancelSignal } from "../trpc.ts";
 
 export const login = authProcedure

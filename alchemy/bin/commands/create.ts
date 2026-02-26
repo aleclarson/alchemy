@@ -10,12 +10,12 @@ import {
   spinner,
   text,
 } from "@clack/prompts";
+import { detectPackageManager } from "alchemy/private/util/detect-package-manager";
+import { exists } from "alchemy/private/util/exists";
 import { rm } from "fs-extra";
 import { resolve } from "pathe";
 import pc from "picocolors";
 import z from "zod";
-import { detectPackageManager } from "../../src/util/detect-package-manager.ts";
-import { exists } from "../../src/util/exists.ts";
 import { throwWithContext } from "../errors.ts";
 import { initializeGitRepo, isGitInstalled } from "../services/git.ts";
 import { addGitHubWorkflowToAlchemy } from "../services/github-workflow.ts";
