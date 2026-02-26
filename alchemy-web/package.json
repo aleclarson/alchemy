@@ -18,7 +18,7 @@
     "@astrojs/starlight": "^0.34.3",
     "@iconify-json/bx": "^1.2.2",
     "@tailwindcss/vite": "^4.1.14",
-    "alchemy": "workspace:*",
+    "alchemy": "workspace:@alloc/alchemy.run@*",
     "astro-icon": "^1.1.5",
     "astro-seo-schema": "^5.1.0",
     "astro": "^5.12.8",

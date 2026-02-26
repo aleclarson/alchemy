@@ -62,7 +62,7 @@
     "@types/bun": "latest",
     "@types/node": "latest",
     "@vitest/ui": "^3.1.4",
-    "alchemy": "workspace:*",
+    "alchemy": "workspace:@alloc/alchemy.run@*",
     "aws4fetch": "^1.0.20",
     "changelogithub": "^13.15.0",
     "cloudflare": "^5.2.0",
