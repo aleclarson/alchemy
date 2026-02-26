@@ -31,11 +31,13 @@ describe("Container Health", () => {
         start: true,
       });
 
-      // Use waitForHealth
-      await container.waitForHealth(10000);
-
-      const info = await container.inspect();
+      // Use waitForHealth which now returns info
+      const info = await container.waitForHealth(10000);
       expect(info.health).toBe("healthy");
+
+      // Verify inspect also returns same
+      const inspectInfo = await container.inspect();
+      expect(inspectInfo.health).toBe("healthy");
     } catch (e: any) {
         // If we hit rate limits or docker is unavailable, we skip the test dynamically
         // or just let it fail if that's preferred. But let's log it.

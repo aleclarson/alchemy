@@ -224,7 +224,7 @@ export interface Container extends ContainerProps {
    * Wait for the container to become healthy
    * @param timeout Timeout in milliseconds (default: 60000)
    */
-  waitForHealth(timeout?: number): Promise<void>;
+  waitForHealth(timeout?: number): Promise<ContainerRuntimeInfo>;
 }
 
 /**
@@ -351,7 +351,7 @@ export const Container = Resource(
 
         const health = info.State.Health?.Status;
         if (health === "healthy") {
-          return;
+          return toRuntimeInfo(info);
         }
         if (health === "unhealthy") {
           throw new Error(`Container ${containerName} is unhealthy`);
