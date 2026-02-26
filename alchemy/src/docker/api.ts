@@ -121,6 +121,33 @@ export type ContainerRuntimeInfo = {
   ports: Record<string, number>;
 };
 
+export type NetworkInfo = {
+  Name: string;
+  Id: string;
+  Created: string;
+  Scope: string;
+  Driver: string;
+  EnableIPv6: boolean;
+  IPAM: {
+    Driver: string;
+    Options: Record<string, string> | null;
+    Config: Array<{
+      Subnet: string;
+      Gateway: string;
+    }> | null;
+  };
+  Internal: boolean;
+  Attachable: boolean;
+  Ingress: boolean;
+  ConfigFrom: {
+    Network: string;
+  };
+  ConfigOnly: boolean;
+  Containers: Record<string, any>;
+  Options: Record<string, string>;
+  Labels: Record<string, string>;
+};
+
 /**
  * Docker API client that wraps Docker CLI commands
  */
@@ -467,6 +494,40 @@ export class DockerApi {
    */
   async removeNetwork(networkId: string): Promise<void> {
     await this.exec(["network", "rm", networkId]);
+  }
+
+  /**
+   * Get Docker network information
+   *
+   * @param networkId Network ID or name
+   * @returns Network details in JSON format
+   */
+  async inspectNetwork(networkId: string): Promise<NetworkInfo[]> {
+    const { stdout } = await this.exec(
+      ["network", "inspect", networkId],
+      undefined,
+      true,
+    );
+    try {
+      return JSON.parse(stdout.trim()) as NetworkInfo[];
+    } catch (_error) {
+      return [];
+    }
+  }
+
+  /**
+   * Check if a network exists
+   *
+   * @param networkId Network ID or name
+   * @returns True if network exists
+   */
+  async networkExists(networkId: string): Promise<boolean> {
+    try {
+      const networks = await this.inspectNetwork(networkId);
+      return networks.length > 0;
+    } catch (_error) {
+      return false;
+    }
   }
 
   /**
