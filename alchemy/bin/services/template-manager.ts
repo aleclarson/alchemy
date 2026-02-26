@@ -1,8 +1,6 @@
 import { log, spinner } from "@clack/prompts";
+import { exists } from "alchemy/private/util/exists";
 import { execa } from "execa";
-import { globby } from "globby";
-import path, { join } from "pathe";
-
 import {
   copy,
   ensureDir,
@@ -11,7 +9,8 @@ import {
   writeFile,
   writeJson,
 } from "fs-extra";
-import { exists } from "../../src/util/exists.ts";
+import { globby } from "globby";
+import path, { join } from "pathe";
 import { PKG_ROOT } from "../constants.ts";
 import { throwWithContext } from "../errors.ts";
 import type { ProjectContext } from "../types.ts";

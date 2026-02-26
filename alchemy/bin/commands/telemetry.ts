@@ -1,9 +1,9 @@
 import * as prompts from "@clack/prompts";
-import pc from "picocolors";
 import {
   setGlobalTelemetryDisabled,
   setGlobalTelemetryEnabled,
-} from "../../src/util/telemetry.ts";
+} from "alchemy/private/util/telemetry";
+import pc from "picocolors";
 import { t } from "../trpc.ts";
 
 export const telemetry = t.router({

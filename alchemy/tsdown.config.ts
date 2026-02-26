@@ -1,6 +1,8 @@
 import { defineConfig } from "tsdown";
 import pkg from "./package.json" with { type: "json" };
 
+const externalRegex = /\b(node:|bun:|node_modules|private)\b/;
+
 export default [
   defineConfig({
     entry: ["bin/alchemy.ts"],
@@ -9,10 +11,11 @@ export default [
     shims: true,
     outDir: "bin",
     outputOptions: {
-      inlineDynamicImports: true,
       banner: "#!/usr/bin/env node",
     },
-    noExternal: ["execa", "open", "env-paths"],
+    external(id) {
+      return externalRegex.test(id);
+    },
   }),
   defineConfig({
     entry: "workers/**/*.ts",

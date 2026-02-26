@@ -1,9 +1,9 @@
+import { findOpenPort } from "alchemy/private/util/find-open-port";
+import { ALCHEMY_ROOT } from "alchemy/private/util/root-dir";
 import fs from "node:fs";
 import { createServer, type Server } from "node:http";
 import path from "pathe";
 import { WebSocketServer, type WebSocket as WsWebSocket } from "ws";
-import { findOpenPort } from "../../../src/util/find-open-port.ts";
-import { ALCHEMY_ROOT } from "../../../src/util/root-dir.ts";
 
 export const LOGS_DIRECTORY = path.join(ALCHEMY_ROOT, ".alchemy", "logs");
 const DEBUGGER_URLS_FILE = path.join(

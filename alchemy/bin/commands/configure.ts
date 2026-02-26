@@ -10,11 +10,11 @@ import {
   select,
   text,
 } from "@clack/prompts";
+import { Credentials, Profile, Provider } from "alchemy/private/auth";
+import { CloudflareAuth } from "alchemy/private/cloudflare/auth";
+import { listCloudflareAccounts } from "alchemy/private/cloudflare/user";
 import pc from "picocolors";
 import z from "zod";
-import { Credentials, Profile, Provider } from "../../src/auth.ts";
-import { CloudflareAuth } from "../../src/cloudflare/auth.ts";
-import { listCloudflareAccounts } from "../../src/cloudflare/user.ts";
 import { authProcedure, CancelSignal } from "../trpc.ts";
 import { cloudflareLogin } from "./login.ts";
 

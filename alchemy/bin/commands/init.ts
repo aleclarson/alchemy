@@ -8,6 +8,8 @@ import {
   outro,
   select,
 } from "@clack/prompts";
+import { detectPackageManager } from "alchemy/private/util/detect-package-manager";
+import { exists } from "alchemy/private/util/exists";
 import {
   ensureDir,
   ensureFile,
@@ -26,8 +28,6 @@ import {
   type CallExpression,
 } from "ts-morph";
 import z from "zod";
-import { detectPackageManager } from "../../src/util/detect-package-manager.ts";
-import { exists } from "../../src/util/exists.ts";
 import type { DependencyVersionMap } from "../constants.ts";
 import { throwWithContext } from "../errors.ts";
 import { addPackageDependencies } from "../services/dependencies.ts";
