@@ -189,6 +189,11 @@ export interface ContainerProps {
    * @default false
    */
   adopt?: boolean;
+
+  /**
+   * Resources that this container depends on.
+   */
+  dependsOn?: any;
 }
 
 /**
@@ -298,18 +303,6 @@ export const Container = Resource(
     // Initialize Docker API client
     const api = new DockerApi();
 
-    // Get image reference
-    const imageRef =
-      typeof props.image === "string" ? props.image : props.image.imageRef;
-
-    // Use provided name or generate one based on resource ID
-    const containerName =
-      props.name ?? this.output?.name ?? this.scope.createPhysicalName(id);
-
-    if (this.phase === "update" && this.output.name !== containerName) {
-      this.replace();
-    }
-
     // Handle delete phase
     if (this.phase === "delete") {
       if (this.output?.id) {
@@ -322,6 +315,26 @@ export const Container = Resource(
 
       // Return destroyed state
       return this.destroy();
+    }
+
+    // Resolve dependencies
+    if (props.dependsOn) {
+      const deps = Array.isArray(props.dependsOn)
+        ? props.dependsOn
+        : [props.dependsOn];
+      await Promise.all(deps);
+    }
+
+    // Get image reference
+    const imageRef =
+      typeof props.image === "string" ? props.image : props.image.imageRef;
+
+    // Use provided name or generate one based on resource ID
+    const containerName =
+      props.name ?? this.output?.name ?? this.scope.createPhysicalName(id);
+
+    if (this.phase === "update" && this.output.name !== containerName) {
+      this.replace();
     }
 
     let containerState: Container["state"] = "created";

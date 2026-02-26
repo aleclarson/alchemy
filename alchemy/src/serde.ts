@@ -123,6 +123,11 @@ export async function serialize(
     return {
       "@buffer": await serializeBinary(value),
     };
+  } else if (
+    value instanceof Promise ||
+    (value && typeof value === "object" && typeof value.then === "function")
+  ) {
+    return undefined;
   } else if (value && typeof value === "object") {
     for (const symbol of Object.getOwnPropertySymbols(value)) {
       assertNotUniqueSymbol(symbol);
