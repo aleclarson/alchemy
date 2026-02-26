@@ -23,11 +23,13 @@
   },
   "files": [
     "bin",
+    "!bin/**/*.ts",
     "drizzle/default",
     "lib",
     "!lib/**/*.map",
     "templates",
-    "workers"
+    "workers",
+    "!workers/**/*.ts"
   ],
   "exports": {
     ".": {
