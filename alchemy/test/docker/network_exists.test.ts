@@ -37,9 +37,9 @@ describe.sequential("Network", () => {
 
       // Ensure network is really gone
       try {
-          if (await api.networkExists(networkName)) {
-             await api.removeNetwork(networkName);
-          }
+        if (await api.networkExists(networkName)) {
+          await api.removeNetwork(networkName);
+        }
       } catch {}
     }
   });

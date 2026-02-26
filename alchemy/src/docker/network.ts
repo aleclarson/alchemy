@@ -114,7 +114,9 @@ export const Network = Resource(
       } catch (error: any) {
         const errorMessage = error.message || String(error);
         if (
-          errorMessage.includes(`network with name ${networkName} already exists`)
+          errorMessage.includes(
+            `network with name ${networkName} already exists`,
+          )
         ) {
           const [details] = await api.inspectNetwork(networkName);
           if (details) {
