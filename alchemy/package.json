@@ -1,25 +1,16 @@
 {
   "name": "alchemy",
   "version": "0.87.0",
+  "homepage": "https://alchemy.run",
   "license": "Apache-2.0",
   "author": "Sam Goodwin <sam@alchemy.run>",
-  "homepage": "https://alchemy.run",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alchemy-run/alchemy.git",
     "directory": "alchemy"
   },
-  "type": "module",
-  "module": "./lib/index.js",
   "bin": {
     "alchemy": "bin/alchemy.js"
-  },
-  "scripts": {
-    "build": "rm -rf ./*.tsbuildinfo && rm -rf ./lib && tsc -b && tsdown",
-    "dev": "tsdown --watch",
-    "drizzle:generate": "bun run scripts/drizzle-generate.ts",
-    "postbuild": "cpx 'src/**/*/types.d.ts' lib && cpx 'src/**/*.txt' lib",
-    "publish:npm": "cp ../README.md . && bun run build && tsdown && bun publish && rm README.md"
   },
   "files": [
     "bin",
@@ -29,34 +20,24 @@
     "templates",
     "workers"
   ],
+  "type": "module",
+  "module": "./lib/index.js",
   "exports": {
     ".": {
       "bun": "./src/index.ts",
       "import": "./lib/index.js"
     },
-    "./llms": {
-      "bun": "./src/llms.ts",
-      "import": "./lib/llms.js"
-    },
-    "./coinbase": {
-      "bun": "./src/coinbase/index.ts",
-      "import": "./lib/coinbase/index.js"
-    },
-    "./coinbase/faucet": {
-      "bun": "./src/coinbase/faucet.ts",
-      "import": "./lib/coinbase/faucet.js"
-    },
     "./aws": {
       "bun": "./src/aws/index.ts",
       "import": "./lib/aws/index.js"
     },
-    "./aws/ec2": {
-      "bun": "./src/aws/ec2/index.ts",
-      "import": "./lib/aws/ec2/index.js"
-    },
     "./aws/control": {
       "bun": "./src/aws/control/index.ts",
       "import": "./lib/aws/control/index.js"
+    },
+    "./aws/ec2": {
+      "bun": "./src/aws/ec2/index.ts",
+      "import": "./lib/aws/ec2/index.js"
     },
     "./aws/oidc": {
       "bun": "./src/aws/oidc/index.ts",
@@ -75,21 +56,21 @@
       "import": "./lib/cloudflare/astro/plugin.js"
     },
     "./cloudflare/bun-spa": {
-      "bun": "./src/cloudflare/bun-spa/index.ts",
       "browser": "./src/cloudflare/bun-spa/index.ts",
+      "bun": "./src/cloudflare/bun-spa/index.ts",
       "import": "./lib/cloudflare/bun-spa/index.js"
     },
     "./cloudflare/nuxt": {
       "bun": "./src/cloudflare/nuxt/plugin.ts",
       "import": "./lib/cloudflare/nuxt/plugin.js"
     },
-    "./cloudflare/redwood": {
-      "bun": "./src/cloudflare/redwood/plugin.ts",
-      "import": "./lib/cloudflare/redwood/plugin.js"
-    },
     "./cloudflare/react-router": {
       "bun": "./src/cloudflare/react-router/plugin.ts",
       "import": "./lib/cloudflare/react-router/plugin.js"
+    },
+    "./cloudflare/redwood": {
+      "bun": "./src/cloudflare/redwood/plugin.ts",
+      "import": "./lib/cloudflare/redwood/plugin.js"
     },
     "./cloudflare/sveltekit": {
       "bun": "./src/cloudflare/sveltekit/plugin.ts",
@@ -102,6 +83,14 @@
     "./cloudflare/vite": {
       "bun": "./src/cloudflare/vite/plugin.ts",
       "import": "./lib/cloudflare/vite/plugin.js"
+    },
+    "./coinbase": {
+      "bun": "./src/coinbase/index.ts",
+      "import": "./lib/coinbase/index.js"
+    },
+    "./coinbase/faucet": {
+      "bun": "./src/coinbase/faucet.ts",
+      "import": "./lib/coinbase/faucet.js"
     },
     "./dns": {
       "bun": "./src/dns/index.ts",
@@ -122,6 +111,10 @@
     "./github": {
       "bun": "./src/github/index.ts",
       "import": "./lib/github/index.js"
+    },
+    "./llms": {
+      "bun": "./src/llms.ts",
+      "import": "./lib/llms.js"
     },
     "./neon": {
       "bun": "./src/neon/index.ts",
@@ -155,13 +148,13 @@
       "bun": "./src/stripe/index.ts",
       "import": "./lib/stripe/index.js"
     },
-    "./test/vite": {
-      "bun": "./src/test/vite.ts",
-      "import": "./lib/test/vite.js"
-    },
     "./test/bun": {
       "bun": "./src/test/bun.ts",
       "import": "./lib/test/bun.js"
+    },
+    "./test/vite": {
+      "bun": "./src/test/vite.ts",
+      "import": "./lib/test/vite.js"
     },
     "./upstash": {
       "bun": "./src/upstash/index.ts",
@@ -175,6 +168,13 @@
       "bun": "./src/vercel/index.ts",
       "import": "./lib/vercel/index.js"
     }
+  },
+  "scripts": {
+    "build": "rm -rf ./*.tsbuildinfo && rm -rf ./lib && tsc -b && tsdown",
+    "dev": "tsdown --watch",
+    "drizzle:generate": "bun run scripts/drizzle-generate.ts",
+    "postbuild": "cpx 'src/**/*/types.d.ts' lib && cpx 'src/**/*.txt' lib",
+    "publish:npm": "cp ../README.md . && bun run build && tsdown && bun publish && rm README.md"
   },
   "dependencies": {
     "@aws-sdk/credential-providers": "^3.0.0",
@@ -206,79 +206,6 @@
     "unenv": "2.0.0-rc.21",
     "ws": "^8.18.3",
     "yaml": "^2.0.0"
-  },
-  "peerDependencies": {
-    "@astrojs/cloudflare": "^12.6.4",
-    "@aws-sdk/client-dynamodb": "^3.0.0",
-    "@aws-sdk/client-iam": "^3.0.0",
-    "@aws-sdk/client-lambda": "^3.0.0",
-    "@aws-sdk/client-s3": "^3.0.0",
-    "@aws-sdk/client-sesv2": "^3.0.0",
-    "@aws-sdk/client-sqs": "^3.0.0",
-    "@aws-sdk/client-ssm": "^3.0.0",
-    "@aws-sdk/client-sts": "^3.0.0",
-    "@cloudflare/vite-plugin": "catalog:",
-    "@coinbase/cdp-sdk": "^0.10.0",
-    "@libsql/client": "^0.15.12",
-    "@opennextjs/cloudflare": "^1.6.5",
-    "astro": "^5.13.2",
-    "rwsdk": "^1.0.0-beta.51",
-    "stripe": "^18.5.0",
-    "vite": ">=6.0.0",
-    "wrangler": "catalog:"
-  },
-  "peerDependenciesMeta": {
-    "@astrojs/cloudflare": {
-      "optional": true
-    },
-    "@coinbase/cdp-sdk": {
-      "optional": true
-    },
-    "@aws-sdk/client-dynamodb": {
-      "optional": true
-    },
-    "@aws-sdk/client-iam": {
-      "optional": true
-    },
-    "@aws-sdk/client-lambda": {
-      "optional": true
-    },
-    "@aws-sdk/client-s3": {
-      "optional": true
-    },
-    "@aws-sdk/client-sesv2": {
-      "optional": true
-    },
-    "@aws-sdk/client-sqs": {
-      "optional": true
-    },
-    "@aws-sdk/client-ssm": {
-      "optional": true
-    },
-    "@aws-sdk/client-sts": {
-      "optional": true
-    },
-    "@cloudflare/vite-plugin": {
-      "optional": true
-    },
-    "@opennextjs/cloudflare": {
-      "optional": true
-    },
-    "@libsql/client": {
-      "optional": true
-    },
-    "astro": {
-      "optional": true
-    },
-    "rwsdk": {
-      "optional": true
-    },
-    "stripe": {
-      "optional": true
-    },
-    "vite": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@astrojs/cloudflare": "^12.6.4",
@@ -333,5 +260,78 @@
     "undici": "^7.14.0",
     "wrangler": "^4.42.2",
     "zod": "^4.0.10"
+  },
+  "peerDependencies": {
+    "@astrojs/cloudflare": "^12.6.4",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-iam": "^3.0.0",
+    "@aws-sdk/client-lambda": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/client-sesv2": "^3.0.0",
+    "@aws-sdk/client-sqs": "^3.0.0",
+    "@aws-sdk/client-ssm": "^3.0.0",
+    "@aws-sdk/client-sts": "^3.0.0",
+    "@cloudflare/vite-plugin": "catalog:",
+    "@coinbase/cdp-sdk": "^0.10.0",
+    "@libsql/client": "^0.15.12",
+    "@opennextjs/cloudflare": "^1.6.5",
+    "astro": "^5.13.2",
+    "rwsdk": "^1.0.0-beta.51",
+    "stripe": "^18.5.0",
+    "vite": ">=6.0.0",
+    "wrangler": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/cloudflare": {
+      "optional": true
+    },
+    "@aws-sdk/client-dynamodb": {
+      "optional": true
+    },
+    "@aws-sdk/client-iam": {
+      "optional": true
+    },
+    "@aws-sdk/client-lambda": {
+      "optional": true
+    },
+    "@aws-sdk/client-s3": {
+      "optional": true
+    },
+    "@aws-sdk/client-sesv2": {
+      "optional": true
+    },
+    "@aws-sdk/client-sqs": {
+      "optional": true
+    },
+    "@aws-sdk/client-ssm": {
+      "optional": true
+    },
+    "@aws-sdk/client-sts": {
+      "optional": true
+    },
+    "@cloudflare/vite-plugin": {
+      "optional": true
+    },
+    "@coinbase/cdp-sdk": {
+      "optional": true
+    },
+    "@libsql/client": {
+      "optional": true
+    },
+    "@opennextjs/cloudflare": {
+      "optional": true
+    },
+    "astro": {
+      "optional": true
+    },
+    "rwsdk": {
+      "optional": true
+    },
+    "stripe": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
   }
 }
