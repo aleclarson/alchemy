@@ -31,16 +31,11 @@ describe("Container Health", () => {
         start: true,
       });
 
-      // Poll for healthy status
-      let health: string | undefined;
-      for (let i = 0; i < 10; i++) {
-        const info = await container.inspect();
-        health = info.health;
-        if (health === "healthy") break;
-        await new Promise(r => setTimeout(r, 1000));
-      }
+      // Use waitForHealth
+      await container.waitForHealth(10000);
 
-      expect(health).toBe("healthy");
+      const info = await container.inspect();
+      expect(info.health).toBe("healthy");
     } catch (e: any) {
         // If we hit rate limits or docker is unavailable, we skip the test dynamically
         // or just let it fail if that's preferred. But let's log it.
@@ -55,7 +50,7 @@ describe("Container Health", () => {
     }
   });
 
-  test("inspect returns 'unhealthy' status", async (scope) => {
+  test("waitForHealth throws on 'unhealthy' status", async (scope) => {
     const containerName = `${BRANCH_PREFIX}-health-unhealthy`;
     try {
       const container = await Container("health-unhealthy", {
@@ -71,16 +66,38 @@ describe("Container Health", () => {
         start: true,
       });
 
-      // Poll for unhealthy status
-      let health: string | undefined;
-      for (let i = 0; i < 10; i++) {
-        const info = await container.inspect();
-        health = info.health;
-        if (health === "unhealthy") break;
-        await new Promise(r => setTimeout(r, 1000));
-      }
+      // waitForHealth should throw because container becomes unhealthy
+      await expect(container.waitForHealth(10000)).rejects.toThrow(/unhealthy/);
 
-      expect(health).toBe("unhealthy");
+      const info = await container.inspect();
+      expect(info.health).toBe("unhealthy");
+    } catch (e: any) {
+        const msg = e.message || String(e);
+        if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
+            console.warn("Skipping test due to Docker environment issues: " + msg);
+            return;
+        }
+        throw e;
+    } finally {
+      await alchemy.destroy(scope);
+    }
+  });
+
+  test("waitForHealth throws when no healthcheck configured", async (scope) => {
+    const containerName = `${BRANCH_PREFIX}-health-none`;
+    try {
+      const container = await Container("health-none", {
+        image: "busybox",
+        name: containerName,
+        command: ["sh", "-c", "sleep 300"],
+        start: true,
+      });
+
+      // waitForHealth should throw because no healthcheck
+      await expect(container.waitForHealth(5000)).rejects.toThrow(/no healthcheck configured/);
+
+      const info = await container.inspect();
+      expect(info.health).toBeUndefined();
     } catch (e: any) {
         const msg = e.message || String(e);
         if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
@@ -112,30 +129,6 @@ describe("Container Health", () => {
       const info = await container.inspect();
       // It should be 'starting' initially before first check completes
       expect(info.health).toMatch(/starting|healthy/);
-    } catch (e: any) {
-        const msg = e.message || String(e);
-        if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
-            console.warn("Skipping test due to Docker environment issues: " + msg);
-            return;
-        }
-        throw e;
-    } finally {
-      await alchemy.destroy(scope);
-    }
-  });
-
-  test("inspect returns undefined health when no healthcheck configured", async (scope) => {
-    const containerName = `${BRANCH_PREFIX}-health-none`;
-    try {
-      const container = await Container("health-none", {
-        image: "busybox",
-        name: containerName,
-        command: ["sh", "-c", "sleep 300"],
-        start: true,
-      });
-
-      const info = await container.inspect();
-      expect(info.health).toBeUndefined();
     } catch (e: any) {
         const msg = e.message || String(e);
         if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {

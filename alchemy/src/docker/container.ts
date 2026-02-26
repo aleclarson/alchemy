@@ -219,6 +219,12 @@ export interface Container extends ContainerProps {
    * Inspect the container to get detailed information
    */
   inspect(): Promise<ContainerRuntimeInfo>;
+
+  /**
+   * Wait for the container to become healthy
+   * @param timeout Timeout in milliseconds (default: 60000)
+   */
+  waitForHealth(timeout?: number): Promise<void>;
 }
 
 /**
@@ -389,6 +395,30 @@ export const Container = Resource(
             }
             return toRuntimeInfo(info);
           },
+          waitForHealth: async (timeout = 60000) => {
+            const startTime = Date.now();
+            while (Date.now() - startTime < timeout) {
+              const [info] = await api.inspectContainer(containerName);
+              if (!info) {
+                throw new Error(`Container ${containerName} not found`);
+              }
+
+              const health = info.State.Health?.Status;
+              if (health === "healthy") {
+                return;
+              }
+              if (health === "unhealthy") {
+                throw new Error(`Container ${containerName} is unhealthy`);
+              }
+              if (!health || health === "none") {
+                throw new Error(`Container ${containerName} has no healthcheck configured`);
+              }
+
+              // Wait 500ms before next check
+              await new Promise((resolve) => setTimeout(resolve, 500));
+            }
+            throw new Error(`Timed out waiting for container ${containerName} to become healthy`);
+          },
         };
       }
     }
@@ -454,6 +484,30 @@ export const Container = Resource(
           throw new Error(`Container ${containerName} not found`);
         }
         return toRuntimeInfo(info);
+      },
+      waitForHealth: async (timeout = 60000) => {
+        const startTime = Date.now();
+        while (Date.now() - startTime < timeout) {
+          const [info] = await api.inspectContainer(containerName);
+          if (!info) {
+            throw new Error(`Container ${containerName} not found`);
+          }
+
+          const health = info.State.Health?.Status;
+          if (health === "healthy") {
+            return;
+          }
+          if (health === "unhealthy") {
+            throw new Error(`Container ${containerName} is unhealthy`);
+          }
+          if (!health || health === "none") {
+            throw new Error(`Container ${containerName} has no healthcheck configured`);
+          }
+
+          // Wait 500ms before next check
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+        throw new Error(`Timed out waiting for container ${containerName} to become healthy`);
       },
     };
   },
