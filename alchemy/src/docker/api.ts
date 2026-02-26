@@ -286,7 +286,7 @@ export class DockerApi {
     image: string,
     name: string,
     options: {
-      ports?: Record<string, string>;
+      ports?: { host?: string; container: string }[];
       env?: Record<string, string>;
       volumes?: Record<string, string>;
       cmd?: string[];
@@ -297,8 +297,12 @@ export class DockerApi {
 
     // Add port mappings
     if (options.ports) {
-      for (const [hostPort, containerPort] of Object.entries(options.ports)) {
-        args.push("-p", `${hostPort}:${containerPort}`);
+      for (const mapping of options.ports) {
+        if (mapping.host) {
+          args.push("-p", `${mapping.host}:${mapping.container}`);
+        } else {
+          args.push("-p", mapping.container);
+        }
       }
     }
 

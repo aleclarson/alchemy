@@ -15,9 +15,10 @@ import type { RemoteImage } from "./remote-image.ts";
  */
 export interface PortMapping {
   /**
-   * External port on the host
+   * External port on the host.
+   * If not specified, Docker will assign a random ephemeral port.
    */
-  external: number | string;
+  external?: number | string;
 
   /**
    * Internal port inside the container
@@ -393,11 +394,16 @@ export const Container = Resource(
     }
 
     // Prepare port mappings
-    const portMappings: Record<string, string> = {};
+    const portMappings: { host?: string; container: string }[] = [];
     if (props.ports) {
       for (const port of props.ports) {
         const protocol = port.protocol || "tcp";
-        portMappings[`${port.external}`] = `${port.internal}/${protocol}`;
+        const container = `${port.internal}/${protocol}`;
+        if (port.external !== undefined) {
+          portMappings.push({ host: `${port.external}`, container });
+        } else {
+          portMappings.push({ container });
+        }
       }
     }
 
@@ -593,12 +599,13 @@ function normalizeEnvironment(
  */
 function normalizePortMappings(
   ports: PortMapping[] | undefined,
-): Map<string, string> {
-  const map = new Map<string, string>();
+): Map<string, string | undefined> {
+  const map = new Map<string, string | undefined>();
   if (!ports) return map;
   for (const port of ports) {
     const protocol = port.protocol || "tcp";
-    map.set(`${port.external}`, `${port.internal}/${protocol}`);
+    const container = `${port.internal}/${protocol}`;
+    map.set(container, port.external !== undefined ? `${port.external}` : undefined);
   }
   return map;
 }
@@ -666,18 +673,26 @@ function comparePorts(
   const propsMap = normalizePortMappings(propsPorts);
 
   // Extract container port mappings
-  const containerMap = new Map<string, string>();
+  const containerMap = new Map<string, string | undefined>();
   if (containerPorts) {
     for (const [containerPort, bindings] of Object.entries(containerPorts)) {
       if (bindings && bindings.length > 0) {
-        containerMap.set(bindings[0].HostPort, containerPort);
+        const hostPort = bindings[0].HostPort;
+        containerMap.set(containerPort, hostPort === "" ? undefined : hostPort);
       }
     }
   }
 
   if (propsMap.size !== containerMap.size) return false;
-  for (const [hostPort, containerPort] of propsMap) {
-    if (containerMap.get(hostPort) !== containerPort) return false;
+  for (const [containerPort, desiredHostPort] of propsMap) {
+    if (!containerMap.has(containerPort)) return false;
+    const actualHostPort = containerMap.get(containerPort);
+
+    // Only check equality if a specific host port was requested.
+    // If desiredHostPort is undefined (random), we accept any actualHostPort (including undefined/empty).
+    if (desiredHostPort !== undefined) {
+      if (desiredHostPort !== actualHostPort) return false;
+    }
   }
   return true;
 }
