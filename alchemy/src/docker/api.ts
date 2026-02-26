@@ -71,7 +71,19 @@ type VolumeInfo = {
 
 export type ContainerInfo = {
   Id: string;
-  State: { Status: "created" | "running" | "paused" | "stopped" | "exited" };
+  State: {
+    Status: "created" | "running" | "paused" | "stopped" | "exited";
+    Health?: {
+      Status: "none" | "starting" | "healthy" | "unhealthy";
+      FailingStreak: number;
+      Log: Array<{
+        Start: string;
+        End: string;
+        ExitCode: number;
+        Output: string;
+      }>;
+    };
+  };
   Created: string;
   Config: {
     Image: string;
@@ -119,6 +131,11 @@ export type ContainerRuntimeInfo = {
    * Format: "internalPort/protocol" -> hostPort (number)
    */
   ports: Record<string, number>;
+
+  /**
+   * Health status of the container if a healthcheck is configured
+   */
+  health?: "none" | "starting" | "healthy" | "unhealthy";
 };
 
 /**

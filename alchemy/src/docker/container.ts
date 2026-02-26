@@ -485,6 +485,7 @@ function toRuntimeInfo(info: ContainerInfo): ContainerRuntimeInfo {
 
   return {
     ports,
+    health: info.State.Health?.Status,
   };
 }
 
