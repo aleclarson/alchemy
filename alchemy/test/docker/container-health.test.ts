@@ -1,4 +1,4 @@
-import { describe, expect, vi } from "vitest";
+import { describe, expect, vi, beforeEach, afterEach } from "vitest";
 import { alchemy } from "../../src/alchemy.ts";
 import { Container } from "../../src/docker/container.ts";
 import { DockerApi, type ContainerInfo } from "../../src/docker/api.ts";
@@ -10,31 +10,10 @@ const test = alchemy.test(import.meta, {
   prefix: BRANCH_PREFIX,
 });
 
-// Mock DockerApi
-vi.mock("../../src/docker/api.ts", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("../../src/docker/api.ts")>();
-  const DockerApi = vi.fn();
-
-  // Default mock implementations
-  DockerApi.prototype.containerExists = vi.fn().mockResolvedValue(true);
-  DockerApi.prototype.createContainer = vi.fn().mockResolvedValue("test-id");
-  DockerApi.prototype.startContainer = vi.fn().mockResolvedValue(undefined);
-  DockerApi.prototype.stopContainer = vi.fn().mockResolvedValue(undefined);
-  DockerApi.prototype.removeContainer = vi.fn().mockResolvedValue(undefined);
-  DockerApi.prototype.connectNetwork = vi.fn().mockResolvedValue(undefined);
-  DockerApi.prototype.disconnectNetwork = vi.fn().mockResolvedValue(undefined);
-  DockerApi.prototype.inspectContainer = vi.fn().mockResolvedValue([]);
-
-  return {
-    ...mod,
-    DockerApi,
-  };
-});
-
 // Helper to create a mock ContainerInfo
-function createMockContainerInfo(healthStatus?: "none" | "starting" | "healthy" | "unhealthy"): ContainerInfo {
+function createMockContainerInfo(id: string, healthStatus?: "none" | "starting" | "healthy" | "unhealthy"): ContainerInfo {
   const info: any = {
-    Id: "test-id",
+    Id: id,
     State: {
       Status: "running",
     },
@@ -68,17 +47,64 @@ function createMockContainerInfo(healthStatus?: "none" | "starting" | "healthy" 
 }
 
 describe.sequential("Container Health", () => {
+  let execSpy: any;
+
+  beforeEach(() => {
+    // Spy on the real DockerApi.prototype.exec method
+    // This allows us to intercept CLI calls without mocking the entire module
+    execSpy = vi.spyOn(DockerApi.prototype, "exec");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   test("inspect returns 'healthy' status", async (scope) => {
-    // Mock inspectContainer to return healthy status
-    const mockInfo = createMockContainerInfo("healthy");
-    (DockerApi.prototype.inspectContainer as any).mockResolvedValue([mockInfo]);
+    const containerName = "health-test-healthy";
+    const containerId = "test-id-healthy";
+    let created = false;
+
+    execSpy.mockImplementation(async (args: string[]) => {
+      // Mock 'container inspect'
+      if (args[0] === "container" && args[1] === "inspect") {
+        const target = args[2];
+        if (target === containerName) {
+            if (!created) {
+                // Simulate "does not exist" before creation by throwing error
+                throw new Error("No such container");
+            } else {
+                // Return healthy status after creation
+                return { stdout: JSON.stringify([createMockContainerInfo(containerId, "healthy")]), stderr: "" };
+            }
+        }
+      }
+
+      // Mock 'create'
+      if (args[0] === "create") {
+        created = true;
+        return { stdout: containerId, stderr: "" };
+      }
+
+      // Mock 'start'
+      if (args[0] === "start") {
+        return { stdout: containerId, stderr: "" };
+      }
+
+      // Default behavior for other calls or unmatched args
+      // We must throw for unmatched inspect calls to simulate "not found"
+      if (args[0] === "container" && args[1] === "inspect") {
+          throw new Error(`No such container: ${args[2]}`);
+      }
+
+      return { stdout: "", stderr: "" };
+    });
 
     try {
-      const container = await Container("health-test-healthy", {
+      const container = await Container(containerName, {
+        name: containerName, // Explicitly set name to match mock expectation
         image: "nginx:latest",
         start: true,
-        adopt: true // force adoption to avoid create call
+        adopt: false
       });
 
       const runtimeInfo = await container.inspect();
@@ -89,15 +115,36 @@ describe.sequential("Container Health", () => {
   });
 
   test("inspect returns 'unhealthy' status", async (scope) => {
-    // Mock inspectContainer to return unhealthy status
-    const mockInfo = createMockContainerInfo("unhealthy");
-    (DockerApi.prototype.inspectContainer as any).mockResolvedValue([mockInfo]);
+    const containerName = "health-test-unhealthy";
+    const containerId = "test-id-unhealthy";
+    let created = false;
+
+    execSpy.mockImplementation(async (args: string[]) => {
+      if (args[0] === "container" && args[1] === "inspect") {
+        const target = args[2];
+        if (target === containerName) {
+            if (!created) throw new Error("No such container");
+            return { stdout: JSON.stringify([createMockContainerInfo(containerId, "unhealthy")]), stderr: "" };
+        }
+      }
+      if (args[0] === "create") {
+        created = true;
+        return { stdout: containerId, stderr: "" };
+      }
+      if (args[0] === "start") return { stdout: containerId, stderr: "" };
+
+      if (args[0] === "container" && args[1] === "inspect") {
+          throw new Error(`No such container: ${args[2]}`);
+      }
+      return { stdout: "", stderr: "" };
+    });
 
     try {
-      const container = await Container("health-test-unhealthy", {
+      const container = await Container(containerName, {
+        name: containerName,
         image: "nginx:latest",
         start: true,
-        adopt: true
+        adopt: false
       });
 
       const runtimeInfo = await container.inspect();
@@ -108,15 +155,36 @@ describe.sequential("Container Health", () => {
   });
 
   test("inspect returns 'starting' status", async (scope) => {
-    // Mock inspectContainer to return starting status
-    const mockInfo = createMockContainerInfo("starting");
-    (DockerApi.prototype.inspectContainer as any).mockResolvedValue([mockInfo]);
+    const containerName = "health-test-starting";
+    const containerId = "test-id-starting";
+    let created = false;
+
+    execSpy.mockImplementation(async (args: string[]) => {
+      if (args[0] === "container" && args[1] === "inspect") {
+        const target = args[2];
+        if (target === containerName) {
+            if (!created) throw new Error("No such container");
+            return { stdout: JSON.stringify([createMockContainerInfo(containerId, "starting")]), stderr: "" };
+        }
+      }
+      if (args[0] === "create") {
+        created = true;
+        return { stdout: containerId, stderr: "" };
+      }
+      if (args[0] === "start") return { stdout: containerId, stderr: "" };
+
+      if (args[0] === "container" && args[1] === "inspect") {
+          throw new Error(`No such container: ${args[2]}`);
+      }
+      return { stdout: "", stderr: "" };
+    });
 
     try {
-      const container = await Container("health-test-starting", {
+      const container = await Container(containerName, {
+        name: containerName,
         image: "nginx:latest",
         start: true,
-        adopt: true
+        adopt: false
       });
 
       const runtimeInfo = await container.inspect();
@@ -127,15 +195,36 @@ describe.sequential("Container Health", () => {
   });
 
   test("inspect returns undefined health when no healthcheck configured", async (scope) => {
-    // Mock inspectContainer to return no health info
-    const mockInfo = createMockContainerInfo(undefined);
-    (DockerApi.prototype.inspectContainer as any).mockResolvedValue([mockInfo]);
+    const containerName = "health-test-none";
+    const containerId = "test-id-none";
+    let created = false;
+
+    execSpy.mockImplementation(async (args: string[]) => {
+      if (args[0] === "container" && args[1] === "inspect") {
+        const target = args[2];
+        if (target === containerName) {
+            if (!created) throw new Error("No such container");
+            return { stdout: JSON.stringify([createMockContainerInfo(containerId, undefined)]), stderr: "" };
+        }
+      }
+      if (args[0] === "create") {
+        created = true;
+        return { stdout: containerId, stderr: "" };
+      }
+      if (args[0] === "start") return { stdout: containerId, stderr: "" };
+
+      if (args[0] === "container" && args[1] === "inspect") {
+          throw new Error(`No such container: ${args[2]}`);
+      }
+      return { stdout: "", stderr: "" };
+    });
 
     try {
-      const container = await Container("health-test-none", {
+      const container = await Container(containerName, {
+        name: containerName,
         image: "nginx:latest",
         start: true,
-        adopt: true
+        adopt: false
       });
 
       const runtimeInfo = await container.inspect();
