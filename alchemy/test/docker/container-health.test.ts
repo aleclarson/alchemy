@@ -26,7 +26,7 @@ describe("Container Health", () => {
           cmd: ["echo", "hello"], // Always succeeds
           interval: 1, // fast interval
           retries: 3,
-          startPeriod: 0
+          startPeriod: 0,
         },
         start: true,
       });
@@ -39,14 +39,18 @@ describe("Container Health", () => {
       const inspectInfo = await container.inspect();
       expect(inspectInfo.health).toBe("healthy");
     } catch (e: any) {
-        // If we hit rate limits or docker is unavailable, we skip the test dynamically
-        // or just let it fail if that's preferred. But let's log it.
-        const msg = e.message || String(e);
-        if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
-            console.warn("Skipping test due to Docker environment issues: " + msg);
-            return;
-        }
-        throw e;
+      // If we hit rate limits or docker is unavailable, we skip the test dynamically
+      // or just let it fail if that's preferred. But let's log it.
+      const msg = e.message || String(e);
+      if (
+        msg.includes("rate limit") ||
+        msg.includes("connection refused") ||
+        msg.includes("Unable to find image")
+      ) {
+        console.warn("Skipping test due to Docker environment issues: " + msg);
+        return;
+      }
+      throw e;
     } finally {
       await alchemy.destroy(scope);
     }
@@ -63,7 +67,7 @@ describe("Container Health", () => {
           cmd: "exit 1", // Always fails
           interval: 1,
           retries: 1,
-          startPeriod: 0
+          startPeriod: 0,
         },
         start: true,
       });
@@ -74,12 +78,16 @@ describe("Container Health", () => {
       const info = await container.inspect();
       expect(info.health).toBe("unhealthy");
     } catch (e: any) {
-        const msg = e.message || String(e);
-        if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
-            console.warn("Skipping test due to Docker environment issues: " + msg);
-            return;
-        }
-        throw e;
+      const msg = e.message || String(e);
+      if (
+        msg.includes("rate limit") ||
+        msg.includes("connection refused") ||
+        msg.includes("Unable to find image")
+      ) {
+        console.warn("Skipping test due to Docker environment issues: " + msg);
+        return;
+      }
+      throw e;
     } finally {
       await alchemy.destroy(scope);
     }
@@ -96,17 +104,23 @@ describe("Container Health", () => {
       });
 
       // waitForHealth should throw because no healthcheck
-      await expect(container.waitForHealth(5000)).rejects.toThrow(/no healthcheck configured/);
+      await expect(container.waitForHealth(5000)).rejects.toThrow(
+        /no healthcheck configured/,
+      );
 
       const info = await container.inspect();
       expect(info.health).toBeUndefined();
     } catch (e: any) {
-        const msg = e.message || String(e);
-        if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
-            console.warn("Skipping test due to Docker environment issues: " + msg);
-            return;
-        }
-        throw e;
+      const msg = e.message || String(e);
+      if (
+        msg.includes("rate limit") ||
+        msg.includes("connection refused") ||
+        msg.includes("Unable to find image")
+      ) {
+        console.warn("Skipping test due to Docker environment issues: " + msg);
+        return;
+      }
+      throw e;
     } finally {
       await alchemy.destroy(scope);
     }
@@ -122,7 +136,7 @@ describe("Container Health", () => {
         healthcheck: {
           cmd: ["echo", "hello"],
           interval: 10, // Long interval keeps it in starting state longer
-          startPeriod: 5
+          startPeriod: 5,
         },
         start: true,
       });
@@ -132,12 +146,16 @@ describe("Container Health", () => {
       // It should be 'starting' initially before first check completes
       expect(info.health).toMatch(/starting|healthy/);
     } catch (e: any) {
-        const msg = e.message || String(e);
-        if (msg.includes("rate limit") || msg.includes("connection refused") || msg.includes("Unable to find image")) {
-            console.warn("Skipping test due to Docker environment issues: " + msg);
-            return;
-        }
-        throw e;
+      const msg = e.message || String(e);
+      if (
+        msg.includes("rate limit") ||
+        msg.includes("connection refused") ||
+        msg.includes("Unable to find image")
+      ) {
+        console.warn("Skipping test due to Docker environment issues: " + msg);
+        return;
+      }
+      throw e;
     } finally {
       await alchemy.destroy(scope);
     }

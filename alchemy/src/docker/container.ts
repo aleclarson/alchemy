@@ -340,7 +340,9 @@ export const Container = Resource(
       return toRuntimeInfo(info);
     };
 
-    const waitForHealth: Container["waitForHealth"] = async (timeout = 60000) => {
+    const waitForHealth: Container["waitForHealth"] = async (
+      timeout = 60000,
+    ) => {
       const startTime = Date.now();
       while (Date.now() - startTime < timeout) {
         const [info] = await api.inspectContainer(containerName);
